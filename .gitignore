@@ -2,3 +2,5 @@ node_modules
 
 # Mac OS metadata file
 .DS_Store
+
+config.js
