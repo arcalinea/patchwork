@@ -16,6 +16,7 @@ exports.needs = nest({
   'profile.async.suggest': 'first',
   'channel.async.suggest': 'first',
   'message.async.publish': 'first',
+  'message.async.tweet': 'first',
   'emoji.sync.names': 'first',
   'emoji.sync.url': 'first',
   'intl.sync.i18n': 'first'
@@ -31,6 +32,7 @@ exports.create = function (api) {
     var focused = Value(false)
     var hasContent = Value(false)
     var publishing = Value(false)
+    var tweeting = Value(false)
     var getProfileSuggestions = api.profile.async.suggest()
     var getChannelSuggestions = api.channel.async.suggest()
 
@@ -102,6 +104,15 @@ exports.create = function (api) {
     fileInput.onclick = function () {
       hasContent.set(true)
     }
+    
+    // Cross-post on Twitter
+    var twitterPublishBtn = h('button', {
+      'ev-click': tweet,
+      disabled: tweeting
+    }, when(tweeting,
+      i18n('Tweeting...'),
+      i18n('Post to Twitter')
+    ))
 
     var publishBtn = h('button', {
       'ev-click': publish,
@@ -116,7 +127,8 @@ exports.create = function (api) {
 
     var actions = h('section.actions', [
       fileInput,
-      publishBtn
+      publishBtn,
+      twitterPublishBtn
     ])
 
     var composer = h('Compose', {
@@ -164,6 +176,36 @@ exports.create = function (api) {
     return composer
 
     // scoped
+    
+    function tweet () {
+        tweeting.set(true)
+        
+        var content = extend(resolve(meta), {
+          text: textArea.value
+        })
+
+        return api.message.async.tweet(content, done)
+        
+        function done (err, msg) {
+          tweeting.set(false)
+          if (err) {
+            if (cb) cb(err)
+            else {
+              showDialog({
+                type: 'error',
+                title: i18n('Error'),
+                buttons: [i18n('OK')],
+                message: i18n('An error occured while trying to tweet your message.'),
+                detail: err.message
+              })
+            }
+          } else {
+            if (msg) textArea.value = ''
+            if (cb) cb(null, msg)
+          }
+        }
+
+    }
 
     function publish () {
       publishing.set(true)
