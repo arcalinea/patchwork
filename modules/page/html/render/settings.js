@@ -30,6 +30,7 @@ exports.create = function (api) {
     const filterSubscriptions = api.settings.obs.get('filters.subscriptions')
     const onlySubscribed = api.settings.obs.get('filters.onlySubscribed')
     const filterChannelViewSubscriptions = api.settings.obs.get('filters.channelView.subscriptions')
+    const tweetOption = api.settings.obs.get('tweetOption')
 
     var prepend = [
       h('PageHeading', [
@@ -109,6 +110,16 @@ exports.create = function (api) {
             h('div', [
               checkbox(filterChannelViewSubscriptions, {
                 label: i18n('Hide channel (un)subcribe messages')
+              })
+            ])
+          ]),
+          
+          h('section', [
+            h('h2', i18n('Cross-Platform Options')),
+
+            h('div', [
+              checkbox(tweetOption, {
+                label: i18n('Enable option to post to Twitter')
               })
             ])
           ]),
