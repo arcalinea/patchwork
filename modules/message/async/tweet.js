@@ -36,7 +36,13 @@ exports.create = function (api) {
       function tweet () {
         close()
         Twitter.post('statuses/update', { status: content.text }, function(err, data, response) {
-          console.log(data)
+          if (err) {
+              console.log("Error tweeting:", err)
+              cb(err, null)
+          } else {
+              console.log("Tweet text:", data.text)
+              cb(null, data.text)
+          }
         })
       }
 
